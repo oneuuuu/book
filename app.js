@@ -23,10 +23,8 @@ const formatCount = (count) => {
 }
 
 const fieldAliases = {
-  rating: "rating",
-  ratingcount: "ratingCount",
-  ratingcunt: "ratingCount",
-  votes: "ratingCount",
+  "评分": "rating",
+  "人数": "ratingCount",
 }
 
 const parseSqlQuery = (input) => {
@@ -36,7 +34,7 @@ const parseSqlQuery = (input) => {
   const tokens = input.trim().split(/\s+/).filter(Boolean)
   const conditions = []
   for (const token of tokens) {
-    const match = token.match(/^([a-zA-Z_]+):(>=|<=|=|>|<)?([0-9.]+)$/)
+    const match = token.match(/^([^:]+):(>=|<=|=|>|<)?([0-9.]+)$/)
     if (!match) {
       return { conditions: [], error: `无法解析条件: ${token}` }
     }
