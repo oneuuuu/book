@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>豆瓣图书查询</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="page">
+      <header class="header">
+        <div>
+          <h1>豆瓣图书查询</h1>
+        </div>
+      </header>
+
+      <section class="controls">
+        <div class="control">
+          <label for="sqlQuery">查询条件</label>
+          <input
+            id="sqlQuery"
+            type="text"
+            placeholder="ratingCount:>10000 rating:>8.2"
+          />
+          <div class="query-error" id="queryError"></div>
+        </div>
+        <div class="control">
+          <label for="sortMode">排序方式</label>
+          <select id="sortMode">
+            <option value="rating">评分</option>
+            <option value="count">评价人数</option>
+          </select>
+        </div>
+        <div class="control control-action">
+          <button id="runQuery" type="button">查询</button>
+          <div class="result-count" id="resultCount">请输入条件后查询</div>
+        </div>
+      </section>
+
+      <section class="grid" id="grid"></section>
+      <section class="pagination" id="pagination">
+        <button id="loadMore" type="button">加载更多</button>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
