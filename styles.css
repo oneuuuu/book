@@ -192,13 +192,6 @@ body {
   color: #6b7280;
 }
 
-.pub {
-  font-size: 12px;
-  color: #6b7280;
-  line-height: 1.4;
-  min-height: 32px;
-}
-
 
 .pagination {
   display: flex;
