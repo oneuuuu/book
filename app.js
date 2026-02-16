@@ -25,6 +25,7 @@ const formatCount = (count) => {
 const fieldAliases = {
   "评分": "rating",
   "人数": "ratingCount",
+  "标题": "title",
 }
 
 const parseSqlQuery = (input) => {
@@ -34,7 +35,7 @@ const parseSqlQuery = (input) => {
   const tokens = input.trim().split(/\s+/).filter(Boolean)
   const conditions = []
   for (const token of tokens) {
-    const match = token.match(/^(评分|人数):(>=|<=|=|>|<)?([0-9.]+)$/)
+    const match = token.match(/^([^:]+):(>=|<=|=|>|<)?(.+)$/)
     if (!match) {
       return { conditions: [], error: `无法解析条件: ${token}` }
     }
@@ -44,16 +45,23 @@ const parseSqlQuery = (input) => {
       return { conditions: [], error: `不支持的字段: ${match[1]}` }
     }
     const operator = match[2] || "="
+    const value = match[3]
     conditions.push({
       field,
       operator,
-      value: Number(match[3]),
+      value: field === "title" ? value : Number(value),
     })
   }
   return { conditions, error: "" }
 }
 
 const matchCondition = (item, condition) => {
+  if (condition.field === "title") {
+    const value = String(item.title || "").toLowerCase()
+    const target = String(condition.value).toLowerCase()
+    return value.includes(target)
+  }
+
   const value = Number(item[condition.field] || 0)
   const target = condition.value
   switch (condition.operator) {
