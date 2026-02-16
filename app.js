@@ -23,9 +23,9 @@ const formatCount = (count) => {
 }
 
 const fieldAliases = {
-  "评分": "rating",
-  "人数": "ratingCount",
-  "标题": "title",
+  "评分": "r",
+  "人数": "c",
+  "标题": "t",
 }
 
 const parseSqlQuery = (input) => {
@@ -49,15 +49,15 @@ const parseSqlQuery = (input) => {
     conditions.push({
       field,
       operator,
-      value: field === "title" ? value : Number(value),
+      value: field === "t" ? value : Number(value),
     })
   }
   return { conditions, error: "" }
 }
 
 const matchCondition = (item, condition) => {
-  if (condition.field === "title") {
-    const value = String(item.title || "").toLowerCase()
+  if (condition.field === "t") {
+    const value = String(item.t || "").toLowerCase()
     const target = String(condition.value).toLowerCase()
     return value.includes(target)
   }
@@ -84,10 +84,10 @@ const applySort = () => {
   const sortMode = sortModeSelect.value
   state.filtered.sort((a, b) => {
     if (sortMode === "rating") {
-      return b.rating - a.rating || b.ratingCount - a.ratingCount
+      return b.r - a.r || b.c - a.c
     }
     if (sortMode === "count") {
-      return b.ratingCount - a.ratingCount || b.rating - a.rating
+      return b.c - a.c || b.r - a.r
     }
     return 0
   })
@@ -142,10 +142,10 @@ const render = () => {
       return `
         <article class="card">
           <div class="content">
-            <h2><a href="${item.url}" target="_blank" rel="noreferrer">${item.title}</a></h2>
+            <h2><a href="${item.u}" target="_blank" rel="noreferrer">${item.t}</a></h2>
             <div class="rating">
-              <span class="score">${item.rating.toFixed(1)}</span>
-              <span class="count">${formatCount(item.ratingCount)}人评价</span>
+              <span class="score">${item.r.toFixed(1)}</span>
+              <span class="count">${formatCount(item.c)}人评价</span>
             </div>
           </div>
         </article>

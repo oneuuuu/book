@@ -28,11 +28,11 @@ def parse_books(path):
 
             items.append(
                 {
-                    "id": book_id,
-                    "rating": rating,
-                    "ratingCount": votes,
-                    "title": title,
-                    "url": f"https://book.douban.com/subject/{book_id}/",
+                    "i": book_id,
+                    "r": rating,
+                    "c": votes,
+                    "t": title,
+                    "u": f"https://book.douban.com/subject/{book_id}/",
                 }
             )
     return items
@@ -51,7 +51,7 @@ def main():
         "source": args.input,
     }
     with open(args.output, "w", encoding="utf-8") as f:
-        json.dump(payload, f, ensure_ascii=False, indent=2)
+        json.dump(payload, f, ensure_ascii=False, separators=(',', ':'))
 
 
 if __name__ == "__main__":
