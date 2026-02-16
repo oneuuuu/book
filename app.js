@@ -139,7 +139,6 @@ const render = () => {
               <span class="score">${item.rating.toFixed(1)}</span>
               <span class="count">${formatCount(item.ratingCount)}人评价</span>
             </div>
-            <div class="pub">${item.pub || item.date || ""}</div>
           </div>
         </article>
       `
