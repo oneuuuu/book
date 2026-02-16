@@ -52,12 +52,16 @@ body {
 
 .control input[type="text"],
 .control select {
+  height: 40px;
   border: 1px solid #d9e5dd;
   border-radius: 10px;
-  padding: 10px 12px;
+  padding: 0 12px;
   font-size: 14px;
+  line-height: 38px;
   transition: border 0.2s ease, box-shadow 0.2s ease;
   outline: none;
+  width: 100%;
+  display: block;
 }
 
 .control input[type="text"]:focus,
@@ -70,15 +74,22 @@ body {
   align-content: start;
 }
 
+.control-action label {
+  visibility: hidden;
+}
+
 .control-action button {
+  height: 40px;
   background: #00b51d;
   color: #fff;
   border: none;
   border-radius: 10px;
-  padding: 10px 14px;
+  padding: 0 14px;
   font-size: 14px;
   cursor: pointer;
   transition: background 0.2s ease, transform 0.2s ease;
+  display: block;
+  width: 100%;
 }
 
 .control-action button:hover {
@@ -86,9 +97,40 @@ body {
   transform: translateY(-1px);
 }
 
-.result-count {
-  font-size: 13px;
-  color: #4b5563;
+.result-spacer {
+  min-height: 20px;
+}
+
+.query-error {
+  font-size: 12px;
+  color: #ef4444;
+  min-height: 20px;
+  line-height: 20px;
+}
+
+.results-status {
+  padding: 0 4px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.results-status .result-count {
+  font-size: 14px;
+  font-weight: 500;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.results-status .result-count::before {
+  content: "";
+  display: inline-block;
+  width: 4px;
+  height: 14px;
+  background: #00b51d;
+  border-radius: 2px;
 }
 
 .grid {
@@ -157,11 +199,6 @@ body {
   min-height: 32px;
 }
 
-.query-error {
-  font-size: 12px;
-  color: #ef4444;
-  min-height: 16px;
-}
 
 .pagination {
   display: flex;
