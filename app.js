@@ -34,7 +34,7 @@ const parseSqlQuery = (input) => {
   const tokens = input.trim().split(/\s+/).filter(Boolean)
   const conditions = []
   for (const token of tokens) {
-    const match = token.match(/^([^:]+):(>=|<=|=|>|<)?([0-9.]+)$/)
+    const match = token.match(/^(评分|人数):(>=|<=|=|>|<)?([0-9.]+)$/)
     if (!match) {
       return { conditions: [], error: `无法解析条件: ${token}` }
     }
