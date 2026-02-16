@@ -27,3 +27,7 @@
    git clone git@github.com:oneuuuu/book.git
    ```
 2. 使用本地服务器打开 `index.html` (例如使用 `live-server` 或 VS Code 的 Live Server 扩展)。
+ 
+## 数据来源
+ 
+本项目使用的数据来自 [Douban-books-2020](https://github.com/yuzhounh/Douban-books-2020) 仓库。
