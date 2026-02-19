@@ -10,7 +10,7 @@ def parse_books(path):
     with open(path, "r", encoding="utf-8", errors="ignore") as f:
         reader = csv.reader(f, skipinitialspace=True)
         headers = next(reader, None)
-        # books.csv format: ID,Rating,Votes,Title
+        # douban.csv format: ID,Rating,Votes,Title
         for row in reader:
             if not row or len(row) < 4:
                 continue
@@ -40,7 +40,7 @@ def parse_books(path):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input", default="books.csv")
+    parser.add_argument("--input", default="douban.csv")
     parser.add_argument("--output", default="books.json")
     args = parser.parse_args()
 
