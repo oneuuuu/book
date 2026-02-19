@@ -125,7 +125,7 @@ const runQuery = () => {
 
   const dbCount = filtered.filter(b => b._s === "db").length
   const grCount = filtered.filter(b => b._s === "gr").length
-  resultCount.innerHTML = `<span>${filtered.length} books found</span> <span class="badge badge-db">${dbCount} Douban</span> <span class="badge badge-gr">${grCount} Goodreads</span>`
+  resultCount.innerHTML = `<span>${filtered.length} books found</span> <span class="badge badge-db">${dbCount}</span> <span class="badge badge-gr">${grCount}</span>`
 
   render()
 }
@@ -151,6 +151,7 @@ const render = () => {
       const badgeClass = item._s === "gr" ? "badge-gr" : "badge-db"
       const author = item.a ? `<div class="author">${escapeHtml(item.a)}</div>` : ""
       const authorContent = item.a ? escapeHtml(item.a) : ""
+      const sourceClass = badgeClass === 'badge-db' ? 'source-db' : 'source-gr'
       return `
         <article class="card">
           <div class="col-title">
@@ -159,12 +160,11 @@ const render = () => {
           <div class="col-author" title="${authorContent}">
             ${authorContent}
           </div>
-          <div class="col-rating">
+          <div class="col-rating ${sourceClass}">
             <span class="score">${item.r}</span>
-            <span class="count">${formatCount(item.c)}</span>
           </div>
-          <div class="col-source">
-            <span class="badge ${badgeClass}">${badge}</span>
+          <div class="col-count ${sourceClass}">
+            <span class="count">${formatCount(item.c)}</span>
           </div>
         </article>
       `

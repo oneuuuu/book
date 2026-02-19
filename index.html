@@ -18,26 +18,32 @@
 
     <section class="controls">
       <div class="control">
-        <label for="sqlQuery">Filter</label>
+        <div class="label-row">
+          <label for="sqlQuery">Filter</label>
+          <div class="query-error" id="queryError"></div>
+        </div>
         <input id="sqlQuery" type="text" value="c:>5000 r:>=9" placeholder="c:>5000 r:>=9 t:title a:author" />
-        <div class="query-error" id="queryError"></div>
       </div>
       <div class="control">
-        <label for="sortMode">Sort</label>
+        <div class="label-row">
+          <label for="sortMode">Sort</label>
+          <div class="query-error"></div>
+        </div>
         <select id="sortMode">
           <option value="rating">Rating</option>
           <option value="count">Count</option>
         </select>
-        <div class="query-error"></div>
       </div>
       <div class="control">
-        <label for="sourceMode">Source</label>
+        <div class="label-row">
+          <label for="sourceMode">Source</label>
+          <div class="query-error"></div>
+        </div>
         <select id="sourceMode">
           <option value="all">All</option>
           <option value="douban">Douban</option>
           <option value="goodreads">Goodreads</option>
         </select>
-        <div class="query-error"></div>
       </div>
       <div class="control control-action">
         <label class="hidden-label">&nbsp;</label>

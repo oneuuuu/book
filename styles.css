@@ -125,13 +125,21 @@ body {
   display: none;
 }
 
+.label-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  overflow: hidden;
+}
+
 .query-error {
-  position: absolute;
-  top: 100%;
-  left: 0;
+  flex: 1;
   font-size: 11px;
   color: #ef4444;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-style: italic;
 }
 
 .control {
@@ -175,7 +183,7 @@ body {
 
 .card {
   display: grid;
-  grid-template-columns: 2.5fr 1.5fr 140px 100px;
+  grid-template-columns: 2.5fr 1.5fr 80px 100px;
   align-items: center;
   gap: 12px;
   background: #fff;
@@ -214,23 +222,26 @@ body {
 }
 
 .col-rating {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-}
-
-.score {
+  font-size: 13px;
   font-weight: 700;
-  color: #f59e0b;
 }
 
-.count {
-  color: #94a3b8;
+.col-count {
+  font-size: 12px;
+  font-weight: 500;
 }
 
-.col-source {
-  text-align: left;
+/* Source-based rating colors */
+.source-db.col-rating,
+.source-db.col-count {
+  color: #16a34a;
+  /* Green for Douban */
+}
+
+.source-gr.col-rating,
+.source-gr.col-count {
+  color: #d97706;
+  /* Orange/Gold for Goodreads */
 }
 
 .badge {
@@ -253,6 +264,18 @@ body {
 .badge-gr {
   background: #fef3c7;
   color: #b45309;
+}
+
+@media (max-width: 640px) {
+  .card {
+    grid-template-columns: 1fr 40px 40px;
+    gap: 4px;
+    padding: 8px 10px;
+  }
+
+  .col-author {
+    display: none;
+  }
 }
 
 .pagination {
