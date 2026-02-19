@@ -84,8 +84,8 @@ body {
 
 .control input[type="text"]:focus,
 .control select:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: #1e293b;
+  box-shadow: 0 0 0 3px rgba(30, 41, 59, 0.1);
 }
 
 .control-action {
@@ -104,7 +104,7 @@ body {
 
 .control-action button {
   height: 28px;
-  background: #3b82f6;
+  background: #1e293b;
   color: #fff;
   border: none;
   border-radius: 4px;
@@ -118,7 +118,7 @@ body {
 }
 
 .control-action button:hover {
-  background: #2563eb;
+  background: #334155;
 }
 
 .result-spacer {
@@ -167,7 +167,7 @@ body {
   display: inline-block;
   width: 4px;
   height: 14px;
-  background: #3b82f6;
+  background: #1e293b;
   border-radius: 2px;
 }
 
@@ -296,8 +296,8 @@ body {
 }
 
 .pagination button:hover {
-  border-color: #3b82f6;
-  color: #3b82f6;
+  border-color: #1e293b;
+  color: #1e293b;
 }
 
 .empty {
