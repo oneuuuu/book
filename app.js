@@ -152,7 +152,7 @@ const render = () => {
             <h2><a href="${url}" target="_blank" rel="noreferrer">${escapeHtml(item.t)}</a></h2>
             ${author}
             <div class="rating">
-              <span class="score">${item.r.toFixed(1)}</span>
+              <span class="score">${item.r.toFixed(2)}</span>
               <span class="count">${formatCount(item.c)} ratings</span>
               <span class="badge ${badgeClass}">${badge}</span>
             </div>

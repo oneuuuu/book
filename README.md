@@ -1,33 +1,51 @@
-# 豆瓣图书查询 (Douban Book Search)
+# Book Search
 
-这是一个简单而强大的豆瓣图书查询工具，允许用户根据自定义条件筛选和排序图书。
+A simple yet powerful tool to search, filter, and sort books from Douban and Goodreads.
 
-![界面预览](screenshot.png)
+![UI Preview](screenshot.png)
 
-## 功能特点
+## Features
 
-- **灵活查询**: 支持自定义字段过滤，例如 `人数:>5000 评分:>=8.5`。
-- **动态排序**: 可按评价人数或评分进行排序。
-- **响应式设计**: 适配不同尺寸的屏幕。
+- **Flexible Querying**: Supports custom field filtering with a simple syntax (e.g., `c:>5000 r:>=8.5`).
+- **Dynamic Sorting**: Sort results by rating or rating count.
+- **Multi-Source**: Toggle between Douban, Goodreads, or everything.
+- **Responsive Design**: Optimized for different screen sizes with a clean, modern UI.
 
-## 如何使用
+## How to use
 
-1. 在“查询条件”输入框中输入过滤规则。
-   - 格式：`字段:操作符数值`
-   - 字段支持：`人数`、`评分`、`标题`
-   - 操作符支持：`:` (等于), `>` , `<` , `>=` , `<=`
-   - 示例：`人数:>10000 评分:>9.0 标题:红楼梦`
-2. 选择“排序方式”（人数或评分）。
-3. 点击“查询”按钮查看结果。
+1. Enter filtering rules in the **Filter** input box.
+   - Format: `field:operatorValue`
+   - Fields: `c` (rating count), `r` (rating), `t` (title), `a` (author)
+   - Operators: `:` (equal), `>`, `<`, `>=`, `<=`
+   - Examples: `c:>10000 r:>9.0 t:Great`, `a:Tolstoy r:>=4.0`
+2. Select your **Sort** mode (Rating or Count).
+3. Select your **Source** (All, Douban, or Goodreads).
+4. Click the **Search** button to view results.
 
-## 本地运行
+## Data Preparation
 
-1. 克隆仓库：
+Before running the site, you need to generate `books.json` from the CSV datasets using the provided Python script:
+
+```bash
+python3 parse_books.py
+```
+
+This will process `douban.csv` and `goodreads.csv` and create the `books.json` file required by the web app.
+
+## Local Development
+
+1. Clone the repository:
    ```bash
-   git clone git@github.com:oneuuuu/book.git
+   git clone https://github.com/oneuuuu/book.git
    ```
-2. 使用本地服务器打开 `index.html` (例如使用 `live-server` 或 VS Code 的 Live Server 扩展)。
- 
-## 数据来源
- 
-本项目使用的数据来自 [Douban-books-2020](https://github.com/yuzhounh/Douban-books-2020) 仓库。
+2. Open `index.html` with a local server (e.g., `live-server`).
+
+## Data Sources
+
+This project uses data from:
+- [Douban-books-2020](https://github.com/yuzhounh/Douban-books-2020)
+- [Goodreads Scraping Dataset](https://www.kaggle.com/datasets/auregen/goodreads-scraping) (Kaggle)
+
+---
+
+Developed with ❤️
