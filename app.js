@@ -17,6 +17,7 @@ const state = {
   visibleCount: 0,
   pageSize: 30,
   hasQueried: false,
+  showStatus: false,
 }
 
 const formatCount = (count) => {
@@ -122,11 +123,13 @@ const runQuery = () => {
     // Basic conditions
     if (!conditions.every((cond) => matchCondition(item, cond))) return false
 
-    // Status filter
-    if (statusFilter === "read") {
-      return state.readIds.has(String(item.i))
-    } else if (statusFilter === "unread") {
-      return !state.readIds.has(String(item.i))
+    // Status filter (only applied if showStatus is true)
+    if (state.showStatus) {
+      if (statusFilter === "read") {
+        return state.readIds.has(String(item.i))
+      } else if (statusFilter === "unread") {
+        return !state.readIds.has(String(item.i))
+      }
     }
 
     return true
@@ -165,7 +168,7 @@ const render = () => {
       const authorContent = item.a ? escapeHtml(item.a) : ""
       const sourceClass = badgeClass === 'badge-db' ? 'source-db' : 'source-gr'
       const isRead = state.readIds.has(String(item.i))
-      const readBadge = isRead ? `<span class="badge badge-read">Read</span>` : ""
+      const readBadge = (state.showStatus && isRead) ? `<span class="badge badge-read">Read</span>` : ""
 
       return `
         <article class="card">
@@ -212,6 +215,12 @@ const loadData = async () => {
 }
 
 const bindEvents = () => {
+  const urlParams = new URLSearchParams(window.location.search)
+  if (urlParams.has('s')) {
+    state.showStatus = true
+    document.querySelector('.controls').classList.add('show-status')
+  }
+
   runQueryButton.addEventListener("click", runQuery)
   sqlQueryInput.addEventListener("input", () => { queryError.textContent = "" })
   sqlQueryInput.addEventListener("keydown", (e) => { if (e.key === "Enter") runQuery() })

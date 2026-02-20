@@ -34,7 +34,7 @@ body {
 
 .controls {
   display: grid;
-  grid-template-columns: 1fr 110px 110px 110px 90px;
+  grid-template-columns: 1fr 110px 110px 90px;
   gap: 12px;
   background: #fff;
   padding: 10px 16px;
@@ -50,6 +50,18 @@ body {
     grid-template-columns: 1fr;
     gap: 8px;
   }
+}
+
+.controls.show-status {
+  grid-template-columns: 1fr 110px 110px 110px 90px;
+}
+
+#statusControl {
+  display: none;
+}
+
+.controls.show-status #statusControl {
+  display: flex;
 }
 
 .control {
