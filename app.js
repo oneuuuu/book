@@ -3,6 +3,7 @@ const sqlQueryInput = document.getElementById("sqlQuery")
 const queryError = document.getElementById("queryError")
 const sortModeSelect = document.getElementById("sortMode")
 const sourceModeSelect = document.getElementById("sourceMode")
+const statusFilterSelect = document.getElementById("statusFilter")
 const runQueryButton = document.getElementById("runQuery")
 const resultCount = document.getElementById("resultCount")
 const loadMoreButton = document.getElementById("loadMore")
@@ -11,6 +12,7 @@ const pagination = document.getElementById("pagination")
 const state = {
   douban: [],
   goodreads: [],
+  readIds: new Set(),
   filtered: [],
   visibleCount: 0,
   pageSize: 30,
@@ -103,6 +105,8 @@ const escapeHtml = (str) =>
 const runQuery = () => {
   const query = sqlQueryInput.value.trim()
   const { conditions, error } = parseSqlQuery(query)
+  const statusFilter = statusFilterSelect.value
+
   queryError.textContent = error
   if (error) {
     state.filtered = []
@@ -114,9 +118,19 @@ const runQuery = () => {
   }
 
   const pool = getSourceItems()
-  const filtered = pool.filter((item) =>
-    conditions.every((cond) => matchCondition(item, cond))
-  )
+  const filtered = pool.filter((item) => {
+    // Basic conditions
+    if (!conditions.every((cond) => matchCondition(item, cond))) return false
+
+    // Status filter
+    if (statusFilter === "read") {
+      return state.readIds.has(String(item.i))
+    } else if (statusFilter === "unread") {
+      return !state.readIds.has(String(item.i))
+    }
+
+    return true
+  })
 
   state.filtered = filtered
   state.visibleCount = state.pageSize
@@ -147,15 +161,17 @@ const render = () => {
   grid.innerHTML = visibleItems
     .map((item) => {
       const url = makeUrl(item)
-      const badge = item._s === "gr" ? "Goodreads" : "Douban"
       const badgeClass = item._s === "gr" ? "badge-gr" : "badge-db"
-      const author = item.a ? `<div class="author">${escapeHtml(item.a)}</div>` : ""
       const authorContent = item.a ? escapeHtml(item.a) : ""
       const sourceClass = badgeClass === 'badge-db' ? 'source-db' : 'source-gr'
+      const isRead = state.readIds.has(String(item.i))
+      const readBadge = isRead ? `<span class="badge badge-read">Read</span>` : ""
+
       return `
         <article class="card">
           <div class="col-title">
             <a href="${url}" target="_blank" rel="noreferrer">${escapeHtml(item.t)}</a>
+            ${readBadge}
           </div>
           <div class="col-author" title="${authorContent}">
             ${authorContent}
@@ -175,11 +191,22 @@ const render = () => {
 }
 
 const loadData = async () => {
-  const resp = await fetch("./books.json")
-  if (!resp.ok) throw new Error("Failed to load data")
-  const data = await resp.json()
-  state.douban = data.douban || []
-  state.goodreads = data.goodreads || []
+  const [booksResp, readResp] = await Promise.all([
+    fetch("./books.json"),
+    fetch("./read.json").catch(() => null)
+  ])
+
+  if (!booksResp.ok) throw new Error("Failed to load books.json")
+
+  const booksData = await booksResp.json()
+  state.douban = booksData.douban || []
+  state.goodreads = booksData.goodreads || []
+
+  if (readResp && readResp.ok) {
+    const readData = await readResp.json()
+    state.readIds = new Set(readData.map(item => String(item.id)))
+  }
+
   resultCount.textContent = `${state.douban.length + state.goodreads.length} books loaded`
   render()
 }
@@ -197,6 +224,10 @@ const bindEvents = () => {
     if (!state.hasQueried) return
     runQuery()
   })
+  statusFilterSelect.addEventListener("change", () => {
+    if (!state.hasQueried) return
+    runQuery()
+  })
   loadMoreButton.addEventListener("click", () => {
     state.visibleCount += state.pageSize
     render()
@@ -206,6 +237,6 @@ const bindEvents = () => {
 bindEvents()
 loadData().catch((err) => {
   resultCount.textContent = err.message
-  grid.innerHTML = `<div class="empty">Failed to load books.json</div>`
+  grid.innerHTML = `<div class="empty">Failed to load data</div>`
   pagination.style.display = "none"
 })
