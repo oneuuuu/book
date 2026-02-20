@@ -126,9 +126,9 @@ const runQuery = () => {
     // Status filter (only applied if showStatus is true)
     if (state.showStatus) {
       if (statusFilter === "read") {
-        return state.readIds.has(String(item.i))
+        return item._s === "db" && state.readIds.has(String(item.i))
       } else if (statusFilter === "unread") {
-        return !state.readIds.has(String(item.i))
+        return item._s === "gr" || !state.readIds.has(String(item.i))
       }
     }
 
