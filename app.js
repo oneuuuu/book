@@ -192,8 +192,8 @@ const render = () => {
 
 const loadData = async () => {
   const [booksResp, readResp] = await Promise.all([
-    fetch("./books.json"),
-    fetch("./read.json").catch(() => null)
+    fetch("./data/books.json"),
+    fetch("./data/read.json").catch(() => null)
   ])
 
   if (!booksResp.ok) throw new Error("Failed to load books.json")
