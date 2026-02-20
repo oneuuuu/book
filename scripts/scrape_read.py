@@ -3,7 +3,9 @@ import json
 import time
 import os
 
-def fetch_douban_read_books(user_id):
+def fetch_douban_read_books(user_id, existing_ids=None):
+    if existing_ids is None:
+        existing_ids = set()
     """
     Scrape "read" books for a given Douban user ID using the Rexxar API.
     """
@@ -44,18 +46,33 @@ def fetch_douban_read_books(user_id):
                     print("No more interests found.")
                     break
                 
+                new_books_this_batch = 0
                 for item in interests:
                     subject = item.get('subject', {})
+                    book_id = subject.get('id')
+                    
+                    if book_id in existing_ids:
+                        print(f"  Found existing book {book_id}, stopping fetch.")
+                        # We hit books we've already scraped, so we can stop entirely
+                        break
+                        
                     rating_obj = item.get('rating')
                     
                     all_interests.append({
-                        'id': subject.get('id'),
+                        'id': book_id,
                         'rating': rating_obj.get('value') if rating_obj else None
                     })
+                    new_books_this_batch += 1
                 
-                print(f"  Got {len(interests)} items this batch.")
+                print(f"  Got {new_books_this_batch} new items this batch.")
                 
-                # Check if we should stop
+                # If we broke out of the for-loop early (didn't process all interests),
+                # or if we didn't find any new books in this batch, we should stop the while loop
+                if new_books_this_batch < len(interests):
+                    print("Reached previously fetched books.")
+                    break
+                
+                # Check if we should stop because we hit the total
                 if len(all_interests) >= total:
                     print(f"Reached API reported total: {total}")
                     break
@@ -78,12 +95,29 @@ if __name__ == "__main__":
     if not USER_ID:
         print("Please set the DOUBAN_USER_ID environment variable.")
         exit(1)
-    results = fetch_douban_read_books(USER_ID)
+    output_file = "data/read.json"
+    
+    # Load existing data to support incremental scraping
+    existing_data = []
+    existing_ids = set()
+    if os.path.exists(output_file):
+        try:
+            with open(output_file, 'r', encoding='utf-8') as f:
+                existing_data = json.load(f)
+                existing_ids = {item['id'] for item in existing_data if 'id' in item}
+            print(f"Loaded {len(existing_data)} existing books.")
+        except json.JSONDecodeError:
+            print(f"Warning: Could not parse existing {output_file}. Starting fresh.")
+    else:
+        print(f"No existing {output_file} found. Starting fresh.")
+        
+    results = fetch_douban_read_books(USER_ID, existing_ids)
     
     if results:
-        output_file = "data/read.json"
+        # Prepend new results to existing data
+        combined_data = results + existing_data
         with open(output_file, 'w', encoding='utf-8') as f:
-            json.dump(results, f, ensure_ascii=False, indent=4)
-        print(f"Successfully saved {len(results)} books to {output_file}")
+            json.dump(combined_data, f, ensure_ascii=False, indent=4)
+        print(f"Successfully saved {len(results)} new books (Total: {len(combined_data)}) to {output_file}")
     else:
-        print("No results fetched.")
+        print("No new books fetched. Data remains unchanged.")
