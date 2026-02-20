@@ -2,10 +2,13 @@ import urllib.request
 import json
 import time
 import os
+import csv
 
-def fetch_douban_read_books(user_id, existing_ids=None):
-    if existing_ids is None:
-        existing_ids = set()
+def fetch_douban_read_books(user_id, read_existing_ids=None, douban_existing_ids=None):
+    if read_existing_ids is None:
+        read_existing_ids = set()
+    if douban_existing_ids is None:
+        douban_existing_ids = set()
     """
     Scrape "read" books for a given Douban user ID using the Rexxar API.
     """
@@ -51,11 +54,27 @@ def fetch_douban_read_books(user_id, existing_ids=None):
                     subject = item.get('subject', {})
                     book_id = subject.get('id')
                     
-                    if book_id in existing_ids:
+                    if book_id in read_existing_ids:
                         print(f"  Found existing book {book_id}, stopping fetch.")
                         # We hit books we've already scraped, so we can stop entirely
                         break
                         
+                    # Extract missing book details to douban.csv if it's a new book
+                    if book_id not in douban_existing_ids:
+                        title = subject.get('title', '')
+                        book_rating_obj = subject.get('rating', {})
+                        book_rating_val = book_rating_obj.get('value', 0.0) if book_rating_obj else 0.0
+                        book_rating_count = book_rating_obj.get('count', 0) if book_rating_obj else 0
+                        
+                        try:
+                            with open('data/douban.csv', 'a', encoding='utf-8', newline='') as f_csv:
+                                writer = csv.writer(f_csv)
+                                writer.writerow([book_id, book_rating_val, book_rating_count, title])
+                            douban_existing_ids.add(book_id)
+                            print(f"  Appended new book {book_id} to douban.csv")
+                        except Exception as e:
+                            print(f"  Failed to append {book_id} to douban.csv: {e}")
+                            
                     rating_obj = item.get('rating')
                     
                     all_interests.append({
@@ -99,19 +118,29 @@ if __name__ == "__main__":
     
     # Load existing data to support incremental scraping
     existing_data = []
-    existing_ids = set()
+    read_existing_ids = set()
     if os.path.exists(output_file):
         try:
             with open(output_file, 'r', encoding='utf-8') as f:
                 existing_data = json.load(f)
-                existing_ids = {item['id'] for item in existing_data if 'id' in item}
+                read_existing_ids = {item['id'] for item in existing_data if 'id' in item}
             print(f"Loaded {len(existing_data)} existing books.")
         except json.JSONDecodeError:
             print(f"Warning: Could not parse existing {output_file}. Starting fresh.")
     else:
         print(f"No existing {output_file} found. Starting fresh.")
         
-    results = fetch_douban_read_books(USER_ID, existing_ids)
+    douban_csv_file = "data/douban.csv"
+    douban_existing_ids = set()
+    if os.path.exists(douban_csv_file):
+        with open(douban_csv_file, 'r', encoding='utf-8-sig') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                if row.get('ID'):
+                    douban_existing_ids.add(row['ID'].strip())
+        print(f"Loaded {len(douban_existing_ids)} existing books from douban.csv.")
+        
+    results = fetch_douban_read_books(USER_ID, douban_existing_ids, douban_existing_ids)
     
     if results:
         # Prepend new results to existing data
