@@ -4,7 +4,10 @@ import json
 from datetime import datetime, timezone
 
 
-def parse_douban(path):
+def parse_douban(path, read_info=None):
+    if read_info is None:
+        read_info = {}  # title -> set of ids
+    
     items = []
     with open(path, "r", encoding="utf-8-sig", errors="ignore") as f:
         reader = csv.reader(f, skipinitialspace=True)
@@ -21,6 +24,11 @@ def parse_douban(path):
                 title = row[3].strip()
             except (ValueError, IndexError):
                 continue
+            
+            # Skip if title matches a read book but ID does not match any of its read IDs
+            if title in read_info and book_id not in read_info[title]:
+                continue
+                
             items.append({"i": book_id, "r": round(rating, 2), "c": votes, "t": title})
     return items
 
@@ -62,10 +70,38 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--douban", default="data/douban.csv")
     parser.add_argument("--goodreads", default="data/goodreads.csv")
+    parser.add_argument("--read", default="data/read.json")
     parser.add_argument("--output", default="data/books.json")
     args = parser.parse_args()
 
-    douban_items = parse_douban(args.douban)
+    # Build title -> set of IDs for read books
+    read_info = {}
+    read_ids = set()
+    try:
+        with open(args.read, "r", encoding="utf-8") as f:
+            read_data = json.load(f)
+            read_ids = {int(item["id"]) for item in read_data if "id" in item}
+    except (FileNotFoundError, json.JSONDecodeError, KeyError, ValueError):
+        pass
+
+    if read_ids:
+        with open(args.douban, "r", encoding="utf-8-sig", errors="ignore") as f:
+            reader = csv.reader(f, skipinitialspace=True)
+            next(reader, None)
+            for row in reader:
+                if not row or len(row) < 4:
+                    continue
+                try:
+                    bid = int(row[0].strip())
+                    title = row[3].strip()
+                    if bid in read_ids:
+                        if title not in read_info:
+                            read_info[title] = set()
+                        read_info[title].add(bid)
+                except (ValueError, IndexError):
+                    continue
+
+    douban_items = parse_douban(args.douban, read_info)
     goodreads_items = parse_goodreads(args.goodreads)
 
     payload = {
