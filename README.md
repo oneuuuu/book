@@ -22,23 +22,16 @@ A simple yet powerful tool to search, filter, and sort books from Douban and Goo
 3. Select your **Source** (All, Douban, or Goodreads).
 4. Click the **Search** button to view results.
 
-## Data Preparation
+## Local Development
 
-Before running the site, you need to generate `books.json` from the CSV datasets using the provided Python script:
-
+1. Clone the repository.
+2. Before running the site, you need to generate `books.json` from the CSV datasets using the provided Python script:
 ```bash
 python3 parse_books.py
 ```
-
 This will process `douban.csv` and `goodreads.csv` and create the `books.json` file required by the web app.
 
-## Local Development
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/oneuuuu/book.git
-   ```
-2. Open `index.html` with a local server (e.g., `live-server`).
+3. Open `index.html` with a local server (e.g., `live-server`).
 
 ## Data Sources
 
