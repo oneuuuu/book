@@ -140,7 +140,7 @@ if __name__ == "__main__":
                     douban_existing_ids.add(row['ID'].strip())
         print(f"Loaded {len(douban_existing_ids)} existing books from douban.csv.")
         
-    results = fetch_douban_read_books(USER_ID, douban_existing_ids, douban_existing_ids)
+    results = fetch_douban_read_books(USER_ID, read_existing_ids, douban_existing_ids)
     
     if results:
         # Prepend new results to existing data
