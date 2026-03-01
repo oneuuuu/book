@@ -6,6 +6,12 @@ on:
   push:
     branches: ["main"]
 
+  # Trigger on completion of the scrape workflow
+  workflow_run:
+    workflows: ["Scrape Douban Read Books"]
+    types:
+      - completed
+
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
