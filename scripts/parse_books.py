@@ -11,7 +11,7 @@ def parse_douban(path, read_info=None):
     items = []
     with open(path, "r", encoding="utf-8-sig", errors="ignore") as f:
         reader = csv.reader(f, skipinitialspace=True)
-        next(reader, None)  # skip header: ID,Rating,Votes,Title
+        next(reader, None)  # skip header: ID,Rating,Votes,Title,Author
         for row in reader:
             if not row or len(row) < 4:
                 continue
@@ -22,14 +22,18 @@ def parse_douban(path, read_info=None):
                 rating = float(row[1].strip()) if row[1].strip() else 0.0
                 votes = int(float(row[2].strip())) if row[2].strip() else 0
                 title = row[3].strip()
+                author = row[4].strip() if len(row) > 4 else ""
             except (ValueError, IndexError):
                 continue
             
             # Skip if title matches a read book but ID does not match any of its read IDs
             if title in read_info and book_id not in read_info[title]:
                 continue
-                
-            items.append({"i": book_id, "r": round(rating, 2), "c": votes, "t": title})
+
+            item = {"i": book_id, "r": round(rating, 2), "c": votes, "t": title}
+            if author:
+                item["a"] = author
+            items.append(item)
     return items
 
 
