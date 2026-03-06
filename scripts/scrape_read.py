@@ -4,11 +4,9 @@ import time
 import os
 import csv
 
-def fetch_douban_read_books(user_id, read_existing_ids=None, douban_existing_ids=None):
+def fetch_douban_read_books(user_id, read_existing_ids=None):
     if read_existing_ids is None:
         read_existing_ids = set()
-    if douban_existing_ids is None:
-        douban_existing_ids = set()
     """
     Scrape "read" books for a given Douban user ID using the Rexxar API.
     """
@@ -19,6 +17,7 @@ def fetch_douban_read_books(user_id, read_existing_ids=None, douban_existing_ids
     }
     
     all_interests = []
+    new_book_details = {} # id -> details
     start = 0
     count = 50
     total = None
@@ -59,23 +58,21 @@ def fetch_douban_read_books(user_id, read_existing_ids=None, douban_existing_ids
                         # We hit books we've already scraped, so we can stop entirely
                         break
                         
-                    # Extract missing book details to douban.csv if it's a new book
-                    if book_id not in douban_existing_ids:
-                        title = subject.get('title', '')
-                        book_rating_obj = subject.get('rating', {})
-                        book_rating_val = book_rating_obj.get('value', 0.0) if book_rating_obj else 0.0
-                        book_rating_count = book_rating_obj.get('count', 0) if book_rating_obj else 0
-                        authors = subject.get('author', [])
-                        author = ', '.join(authors) if authors else ''
-                        
-                        try:
-                            with open('data/douban.csv', 'a', encoding='utf-8', newline='') as f_csv:
-                                writer = csv.writer(f_csv)
-                                writer.writerow([book_id, book_rating_val, book_rating_count, title, author])
-                            douban_existing_ids.add(book_id)
-                            print(f"  Appended new book {book_id} to douban.csv")
-                        except Exception as e:
-                            print(f"  Failed to append {book_id} to douban.csv: {e}")
+                    # Collect/Update book details for all books not in read_existing_ids
+                    title = subject.get('title', '')
+                    book_rating_obj = subject.get('rating', {})
+                    book_rating_val = book_rating_obj.get('value', 0.0) if book_rating_obj else 0.0
+                    book_rating_count = book_rating_obj.get('count', 0) if book_rating_obj else 0
+                    authors = subject.get('author', [])
+                    author = ', '.join(authors) if authors else ''
+                    
+                    new_book_details[book_id] = {
+                        'ID': book_id,
+                        'Rating': book_rating_val,
+                        'Votes': book_rating_count,
+                        'Title': title,
+                        'Author': author
+                    }
                             
                     rating_obj = item.get('rating')
                     
@@ -109,7 +106,7 @@ def fetch_douban_read_books(user_id, read_existing_ids=None, douban_existing_ids
             print(f"An error occurred: {e}")
             break
             
-    return all_interests
+    return all_interests, new_book_details
 
 if __name__ == "__main__":
     USER_ID = os.environ.get("DOUBAN_USER_ID")
@@ -133,18 +130,55 @@ if __name__ == "__main__":
         print(f"No existing {output_file} found. Starting fresh.")
         
     douban_csv_file = "data/douban.csv"
-    douban_existing_ids = set()
+    douban_data = [] # List of dicts
+    fieldnames = ['ID', 'Rating', 'Votes', 'Title', 'Author']
+    
     if os.path.exists(douban_csv_file):
         with open(douban_csv_file, 'r', encoding='utf-8-sig') as f:
             reader = csv.DictReader(f)
+            fieldnames = reader.fieldnames if reader.fieldnames else fieldnames
             for row in reader:
-                if row.get('ID'):
-                    douban_existing_ids.add(row['ID'].strip())
-        print(f"Loaded {len(douban_existing_ids)} existing books from douban.csv.")
+                douban_data.append(row)
+        print(f"Loaded {len(douban_data)} books from douban.csv.")
+    else:
+        print(f"No existing {douban_csv_file} found.")
         
-    results = fetch_douban_read_books(USER_ID, read_existing_ids, douban_existing_ids)
+    results, new_book_details = fetch_douban_read_books(USER_ID, read_existing_ids)
     
     if results:
+        # Update douban.csv with latest details for newly fetched books
+        # Build index for quick lookup
+        douban_index = {row['ID']: i for i, row in enumerate(douban_data)}
+        
+        for bid, details in new_book_details.items():
+            if bid in douban_index:
+                # Update existing entry
+                idx = douban_index[bid]
+                douban_data[idx].update({
+                    'Rating': str(details['Rating']),
+                    'Votes': str(details['Votes']),
+                    'Title': details['Title'],
+                    'Author': details['Author']
+                })
+            else:
+                # Add new entry
+                douban_data.append({
+                    'ID': str(bid),
+                    'Rating': str(details['Rating']),
+                    'Votes': str(details['Votes']),
+                    'Title': details['Title'],
+                    'Author': details['Author']
+                })
+        
+        # Write updated douban.csv
+        with open(douban_csv_file, 'w', encoding='utf-8', newline='') as f:
+            if 'Author' not in fieldnames:
+                fieldnames.append('Author')
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(douban_data)
+        print(f"Updated {douban_csv_file} with latest details for {len(new_book_details)} books.")
+
         # Prepend new results to existing data
         combined_data = results + existing_data
         with open(output_file, 'w', encoding='utf-8') as f:
